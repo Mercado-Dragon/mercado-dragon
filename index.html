@@ -635,9 +635,11 @@ select option { background:var(--surface2); }
 </div>
 
 <script>
+// ===== CONFIG GOOGLE SHEETS =====
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyEt6xhe3qRilz-JZ1abTlpqc6QgqywBDwrP61fxOjapl6RHKO98JUcukMt1_MQ-mgR/exec';
+
 // ===== DATA =====
-let data = JSON.parse(localStorage.getItem('mdragon_data') || '{"productos":[],"ventas":[],"transito":[],"cierres":[]}');
-if(!data.cierres) data.cierres = [];
+let data = {"productos":[],"ventas":[],"transito":[],"cierres":[]};
 
 const SOCIOS = {
   fernando: { nombre:'Fernando López Escobar', pct:0.51, color:'var(--fernando)' },
@@ -645,7 +647,59 @@ const SOCIOS = {
   alejandro:{ nombre:'Alejandro Limpias Chavez', pct:0.20, color:'var(--alejandro)' }
 };
 
-function save() { localStorage.setItem('mdragon_data', JSON.stringify(data)); }
+// ===== INDICADOR DE SYNC =====
+function showSync(msg, color) {
+  let el = document.getElementById('sync-status');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'sync-status';
+    el.style.cssText = 'position:fixed;bottom:18px;right:18px;background:#1e2330;border:1px solid #2a3045;color:#e8eaf0;padding:8px 16px;border-radius:8px;font-size:0.75rem;z-index:9999;transition:opacity 0.5s;font-family:DM Mono,monospace;';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.color = color || '#e8eaf0';
+  el.style.opacity = '1';
+  if (color === '#3ecf8e') setTimeout(() => { el.style.opacity = '0'; }, 2000);
+}
+
+async function save() {
+  localStorage.setItem('mdragon_data', JSON.stringify(data));
+  showSync('☁️ Guardando...', '#f0b429');
+  try {
+    await fetch(SHEET_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'save', data: JSON.stringify(data) })
+    });
+    showSync('✅ Guardado en la nube', '#3ecf8e');
+  } catch(e) {
+    showSync('⚠️ Sin conexión — guardado local', '#e05c5c');
+  }
+}
+
+async function loadFromSheet() {
+  showSync('☁️ Cargando datos...', '#f0b429');
+  try {
+    const res = await fetch(SHEET_URL + '?action=load');
+    const text = await res.text();
+    const remote = JSON.parse(text);
+    if (remote && typeof remote === 'object') {
+      data = remote;
+      if (!data.cierres) data.cierres = [];
+      localStorage.setItem('mdragon_data', JSON.stringify(data));
+      showSync('✅ Datos cargados', '#3ecf8e');
+    }
+  } catch(e) {
+    // Si falla, usar datos locales
+    const local = localStorage.getItem('mdragon_data');
+    if (local) data = JSON.parse(local);
+    if (!data.cierres) data.cierres = [];
+    showSync('⚠️ Usando datos locales', '#e05c5c');
+  }
+  renderInventario(); renderVentas(); renderTransito(); renderDashboard(); renderCierres(); renderRanking();
+  document.getElementById('vta-fecha').value = hoy();
+  document.getElementById('c-fecha').value = hoy();
+}
+
 function bs(n) { return 'Bs. ' + parseFloat(n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
 function hoy() { return new Date().toISOString().split('T')[0]; }
 function totalUtilidad() { return data.ventas.reduce((s,v)=>s+v.utilidad,0); }
@@ -1305,9 +1359,7 @@ function renderRanking() {
 }
 
 // ===== INIT =====
-renderInventario(); renderVentas(); renderTransito(); renderDashboard(); renderCierres(); renderRanking();
-document.getElementById('vta-fecha').value = hoy();
-document.getElementById('c-fecha').value = hoy();
+loadFromSheet();
 </script>
 </body>
 </html>
