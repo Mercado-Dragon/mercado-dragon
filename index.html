@@ -14,6 +14,7 @@
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:var(--bg); color:var(--text); font-family:'DM Mono',monospace; min-height:100vh; }
+
 header {
   background:linear-gradient(135deg,#0d0f14 0%,#1a1f2e 100%);
   border-bottom:1px solid var(--border); padding:18px 32px;
@@ -21,9 +22,10 @@ header {
 }
 .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.3rem; letter-spacing:-0.5px; }
 .logo span { color:var(--accent); }
-.socios-bar { display:flex; gap:16px; align-items:center; flex-wrap: wrap; }
+.socios-bar { display:flex; gap:16px; align-items:center; }
 .socio-badge { display:flex; align-items:center; gap:6px; font-size:0.72rem; }
 .dot { width:8px; height:8px; border-radius:50%; }
+
 nav {
   display:flex; gap:4px; padding:10px 32px;
   background:var(--surface); border-bottom:1px solid var(--border); overflow-x:auto;
@@ -36,6 +38,7 @@ nav {
 }
 .tab-btn.active { background:var(--accent); color:#0d0f14; font-weight:500; }
 .tab-btn:hover:not(.active) { background:var(--surface2); color:var(--text); }
+
 .export-dropdown { position:relative; margin-left:auto; }
 .export-btn {
   background:rgba(240,180,41,0.15); color:var(--accent);
@@ -46,6 +49,7 @@ nav {
 }
 .export-btn:hover { background:rgba(240,180,41,0.25); }
 .export-btn .arrow { font-size:0.6rem; transition:transform 0.2s; }
+.export-btn.open .arrow { transform:rotate(180deg); }
 .export-menu {
   display:none; position:absolute; right:0; top:calc(100% + 6px);
   background:var(--surface); border:1px solid var(--border); border-radius:10px;
@@ -60,22 +64,33 @@ nav {
   text-align:left; display:flex; align-items:center; gap:10px; transition:background 0.15s;
 }
 .export-menu button:hover { background:var(--surface2); }
+
 main { padding:28px 32px; max-width:1400px; margin:0 auto; }
 .section { display:none; }
 .section.active { display:block; animation:fadeIn 0.3s ease; }
 @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
 .cards-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin-bottom:24px; }
 .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; position:relative; overflow:hidden; }
 .card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
 .card.gold::before { background:var(--accent); }
 .card.green::before { background:var(--accent2); }
 .card.red::before { background:var(--accent3); }
+.card.purple::before { background:var(--alejandro); }
+.card.blue::before { background:#60a5fa; }
+.card-label { font-size:0.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.card-value { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:700; }
+.card-sub { font-size:0.7rem; color:var(--muted); margin-top:3px; }
+
 .socios-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-bottom:24px; }
 .socio-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; border-left:4px solid; }
 .socio-name { font-family:'Syne',sans-serif; font-weight:700; font-size:0.9rem; margin-bottom:2px; }
 .socio-pct { font-size:1.8rem; font-family:'Syne',sans-serif; font-weight:800; }
+.socio-util { font-size:0.75rem; color:var(--muted); margin-top:6px; }
+.socio-amount { font-size:1.1rem; font-weight:600; margin-top:2px; }
 .progress-wrap { background:var(--surface2); border-radius:4px; overflow:hidden; margin-top:8px; }
 .progress-fill { height:6px; border-radius:4px; transition:width 0.6s ease; }
+
 .table-container { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:20px; }
 .table-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
 .table-title { font-family:'Syne',sans-serif; font-weight:700; font-size:0.9rem; }
@@ -83,31 +98,35 @@ table { width:100%; border-collapse:collapse; }
 th { background:var(--surface2); padding:10px 14px; text-align:left; font-size:0.68rem; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:400; }
 td { padding:10px 14px; font-size:0.8rem; border-top:1px solid var(--border); vertical-align: middle; }
 tr:hover td { background:rgba(255,255,255,0.02); }
+.badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.68rem; font-weight:500; }
+.badge-stock { background:rgba(62,207,142,0.15); color:var(--accent2); }
+.badge-transito { background:rgba(240,180,41,0.15); color:var(--accent); }
+.badge-agotado { background:rgba(224,92,92,0.15); color:var(--accent3); }
+
 .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; }
 .form-group { display:flex; flex-direction:column; gap:5px; position:relative; }
 label { font-size:0.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; }
 input, select, textarea { background:var(--surface2); border:1px solid var(--border); color:var(--text); font-family:'DM Mono',monospace; font-size:0.82rem; padding:9px 11px; border-radius:8px; outline:none; transition:border-color 0.2s; }
 input:focus, select:focus { border-color:var(--accent); }
 input[readonly] { opacity:0.7; cursor:default; }
+
 .btn { background:var(--accent); color:#0d0f14; border:none; cursor:pointer; font-family:'Syne',sans-serif; font-weight:700; font-size:0.82rem; padding:10px 20px; border-radius:8px; transition:all 0.2s; }
 .btn:hover { filter:brightness(1.1); transform:translateY(-1px); }
 .btn-secondary { background:var(--surface2); color:var(--text); border:1px solid var(--border); }
 .form-actions { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
-.section-title { font-family:'Syne',sans-serif; font-weight:800; font-size:1.25rem; margin-bottom:18px; }
-.section-title span { color:var(--accent); }
+
 .suggestions-box {
   position: absolute; top: calc(100% + 4px); left: 0; right: 0;
   background: var(--surface2); border: 1px solid var(--border);
   border-radius: 8px; max-height: 160px; overflow-y: auto; z-index: 200;
   box-shadow: 0 6px 20px rgba(0,0,0,0.4); display: none;
 }
-.suggestion-item {
-  padding: 8px 12px; cursor: pointer; font-size: 0.78rem; transition: background 0.15s;
-}
+.suggestion-item { padding: 8px 12px; cursor: pointer; font-size: 0.78rem; transition: background 0.15s; }
 .suggestion-item:hover { background: rgba(240,180,41,0.15); color: var(--accent); }
 .img-preview-table { width: 42px; height: 42px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); display: block; }
 .panel-split { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; }
 @media (max-width: 900px) { .panel-split { grid-template-columns: 1fr; } }
+
 #ticket-impresion { display: none; }
 @media print {
   body * { display: none !important; }
@@ -128,11 +147,16 @@ input[readonly] { opacity:0.7; cursor:default; }
 </header>
 
 <nav>
-  <button class="tab-btn active" onclick="switchTab('socios')">SOCIOS</button>
-  <button class="tab-btn" onclick="switchTab('inventario')">INVENTARIO</button>
-  <button class="tab-btn" onclick="switchTab('ventas')">VENTAS</button>
+  <button class="tab-btn active" onclick="switchTab('dashboard')">📊 DASHBOARD</button>
+  <button class="tab-btn" onclick="switchTab('socios')">👥 SOCIOS</button>
+  <button class="tab-btn" onclick="switchTab('inventario')">📦 INVENTARIO</button>
+  <button class="tab-btn" onclick="switchTab('ventas')">💰 VENTAS</button>
+  <button class="tab-btn" onclick="switchTab('transito')">✈️ TRÁNSITO</button>
+  <button class="tab-btn" onclick="switchTab('balance')">⚖️ BALANCE</button>
+  <button class="tab-btn" onclick="switchTab('cierres')">🔒 CIERRES DE PAGO</button>
+  <button class="tab-btn" onclick="switchTab('ranking')">🏆 RANKING</button>
   <div class="export-dropdown">
-    <button class="export-btn" onclick="toggleExportMenu()">ACCIONES <span class="arrow">▼</span></button>
+    <button class="export-btn" onclick="toggleExportMenu()">ACCIONES ▼</button>
     <div class="export-menu" id="exportMenu">
       <button onclick="exportarExcel()">Exportar Inventario a Excel</button>
     </div>
@@ -140,228 +164,8 @@ input[readonly] { opacity:0.7; cursor:default; }
 </nav>
 
 <main>
-  <!-- VISTA 1: SOCIOS -->
-  <div id="sec-socios" class="section active">
-    <div class="section-title">CONTROL DE <span>SOCIOS</span></div>
-    <div class="panel-split">
-      <div class="table-container" style="padding:18px;">
-        <div class="table-title" style="margin-bottom:14px;">ADICIONAR SOCIO</div>
-        <form id="form-nuevo-socio" onsubmit="agregarSocio(event)">
-          <div class="form-grid" style="grid-template-columns: 1fr;">
-            <div class="form-group">
-              <label>Nombre Completo</label>
-              <input type="text" id="socio-nombre" placeholder="Ej. Fernando Silva" required>
-            </div>
-            <div class="form-group">
-              <label>Porcentaje Ganancia (%)</label>
-              <input type="number" id="socio-porcentaje" min="1" max="100" placeholder="Ej. 30" required>
-            </div>
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn">REGISTRAR SOCIO</button>
-          </div>
-        </form>
-      </div>
-      <div>
-        <div class="socios-grid" id="contenedor-socios-cards"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- VISTA 2: INVENTARIO -->
-  <div id="sec-inventario" class="section">
-    <div class="section-title">GESTIÓN DE <span>INVENTARIO</span></div>
-    <div class="table-container" style="padding:18px; margin-bottom: 24px;">
-      <div class="table-title" style="margin-bottom:14px;">REGISTRAR NUEVO PRODUCTO</div>
-      <form id="form-nuevo-producto" onsubmit="guardarProducto(event)">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Código Correlativo (Automático)</label>
-            <input type="text" id="inv-codigo" readonly>
-          </div>
-          <div class="form-group">
-            <label>Nombre del Producto</label>
-            <input type="text" id="inv-nombre" placeholder="Ej. Mouse Gamer RGB" autocomplete="off" oninput="buscarDuplicadosInventario(this.value)" required>
-            <div class="suggestions-box" id="sug-inventario"></div>
-          </div>
-          <div class="form-group">
-            <label>Pegar URL Imagen</label>
-            <input type="text" id="inv-url-img" placeholder="https://ejemplo.com">
-          </div>
-          <div class="form-group">
-            <label>O Cargar Archivo</label>
-            <input type="file" id="inv-file-img" accept="image/*" onchange="limpiarUrlInput()">
-          </div>
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="btn">GUARDAR EN STOCK</button>
-        </div>
-      </form>
-    </div>
-    <div class="table-container">
-      <div class="table-header">
-        <div class="table-title">PRODUCTOS EN SISTEMA</div>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Código MD</th>
-            <th>Imagen</th>
-            <th>Producto</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-inventario"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- VISTA 3: VENTAS -->
-  <div id="sec-ventas" class="section">
-    <div class="section-title">MÓDULO DE <span>VENTAS</span></div>
-    <div class="panel-split">
-      <div class="table-container" style="padding:18px;">
-        <div class="table-title" style="margin-bottom:14px;">PROCESAR NUEVA VENTA</div>
-        <form id="form-nueva-venta" onsubmit="registrarVenta(event)">
-          <div class="form-grid" style="grid-template-columns: 1fr;">
-            <div class="form-group">
-              <label>Escribe Nombre del Producto</label>
-              <input type="text" id="venta-buscar-nombre" placeholder="Buscar producto..." autocomplete="off" oninput="autocompletarVenta(this.value)" required>
-              <div class="suggestions-box" id="sug-ventas"></div>
-            </div>
-            <div class="form-group">
-              <label>Código MD Detectado</label>
-              <input type="text" id="venta-md-codigo" placeholder="Se detectará automáticamente" readonly required>
-            </div>
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn" style="background: var(--accent2);">PROCESAR E IMPRIMIR / PDF</button>
-          </div>
-        </form>
-      </div>
-      <div class="table-container">
-        <div class="table-header">
-          <div class="table-title">HISTORIAL DE VENTAS EMITIDAS</div>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Código MD</th>
-              <th>Producto Vendido</th>
-              <th>Fecha y Hora</th>
-            </tr>
-          </thead>
-          <tbody id="tbody-ventas"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</main>
-
-<div id="ticket-impresion">
-  <h2 style="text-align: center; font-size: 1.4rem; margin:0;">MERCADO DRAGÓN</h2>
-  <p style="text-align: center; font-size: 0.8rem; margin: 2px 0;">SISTEMA DE CONTROL GENERAL</p>
-  <div class="ticket-line"></div>
-  <p><strong>FECHA:</strong> <span id="tick-fecha"></span></p>
-  <p><strong>CÓDIGO MD:</strong> <span id="tick-md"></span></p>
-  <p><strong>PRODUCTO:</strong> <span id="tick-nombre"></span></p>
-  <div class="ticket-line"></div>
-  <p style="text-align: center; font-size: 0.85rem; margin-top: 15px;">¡VENTA REGISTRADA CON ÉXITO!</p>
-</div>
-
-<script>
-let databaseSocios = [
-  { nombre: "Fernando", porcentaje: 40, color: "var(--fernando)" },
-  { nombre: "Olivia", porcentaje: 35, color: "var(--olivia)" },
-  { nombre: "Alejandro", porcentaje: 25, color: "var(--alejandro)" }
-];
-let databaseInventario = [
-  { codigo: "MD-1015", nombre: "Audífonos Inalámbricos Pro", imagen: "https://unsplash.com" }
-];
-let databaseVentas = [];
-
-document.addEventListener("DOMContentLoaded", () => {
-  actualizarSiguienteCodigoMD();
-  renderizarSocios();
-  renderizarInventario();
-});
-
-function switchTab(tabId) {
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById(`sec-${tabId}`).classList.add('active');
-}
-
-function toggleExportMenu() {
-  document.getElementById('exportMenu').classList.toggle('open');
-}
-
-function renderizarSocios() {
-  const bar = document.getElementById("header-socios-bar");
-  const grid = document.getElementById("contenedor-socios-cards");
-  if(!bar || !grid) return;
-  bar.innerHTML = ""; grid.innerHTML = "";
-  databaseSocios.forEach(socio => {
-    bar.innerHTML += `<div class="socio-badge"><div class="dot" style="background:${socio.color}"></div><span>${socio.nombre.toUpperCase()} (${socio.porcentaje}%)</span></div>`;
-    grid.innerHTML += `<div class="socio-card" style="border-left-color:${socio.color}"><div class="socio-name">${socio.nombre}</div><div class="socio-pct">${socio.porcentaje}%</div><div class="progress-wrap"><div class="progress-fill" style="width:${socio.porcentaje}%; background:${socio.color}"></div></div></div>`;
-  });
-}
-
-function agregarSocio(e) {
-  e.preventDefault();
-  const nombre = document.getElementById("socio-nombre").value.trim();
-  const porcentaje = parseInt(document.getElementById("socio-porcentaje").value);
-  const coloresRandom = ['#60a5fa', '#39c5bb', '#f472b6', '#fb7185', '#fb923c', '#c084fc'];
-  const colorAsignado = coloresRandom[Math.floor(Math.random() * coloresRandom.length)];
-  databaseSocios.push({ nombre, porcentaje, color: colorAsignado });
-  renderizarSocios();
-  document.getElementById("form-nuevo-socio").reset();
-}
-
-function actualizarSiguienteCodigoMD() {
-  let siguienteNumero = 1016;
-  if (databaseInventario.length > 0) {
-    const codigos = databaseInventario.map(p => {
-      const num = parseInt(p.codigo.replace("MD-", ""));
-      return isNaN(num) ? 0 : num;
-    });
-    const maxNum = Math.max(...codigos);
-    if(maxNum >= 1015) siguienteNumero = maxNum + 1;
-  }
-  const inputCod = document.getElementById("inv-codigo");
-  if(inputCod) inputCod.value = `MD-${siguienteNumero}`;
-}
-
-function limpiarUrlInput() {
-  document.getElementById("inv-url-img").value = "";
-}
-
-function buscarDuplicadosInventario(valor) {
-  const caja = document.getElementById("sug-inventario");
-  caja.innerHTML = "";
-  if (!valor.trim()) { caja.style.display = "none"; return; }
-  const filtrados = databaseInventario.filter(p => p.nombre.toLowerCase().includes(valor.toLowerCase()));
-  if (filtrados.length > 0) {
-    caja.style.display = "block";
-    filtrados.forEach(p => {
-      const item = document.createElement("div");
-      item.className = "suggestion-item";
-      item.innerText = `[Ya existe como ${p.codigo}] — ${p.nombre}`;
-      item.onclick = () => {
-        document.getElementById("inv-nombre").value = p.nombre;
-        caja.style.display = "none";
-        alert(`Atención: El producto ya está registrado con el código ${p.codigo}.`);
-      };
-      caja.appendChild(item);
-    });
-  } else {
-    caja.style.display = "none";
-  }
-}
-
-function guardarProducto(e) {
-  e.preventDefault();
-  const codigo = document.getElementById("inv-codigo").value;
-  const nombre = document.getElementById("inv-nombre").value.trim();
-  const urlImg = document.getElementById("inv-url-img").value.trim();
-  const fileInput = document.getElementById("inv-file-img").files;
+  <!-- VISTA: DASHBOARD -->
+  <div id="sec-dashboard" class="section active">
+    <div class="cards-grid">
+      <div class="card gold"><div class="card-label">Total Inventario</div><div class="card-value" id="dash-total-inv">1</div></div>
+      <div class="card green"><div class="card-label">Ventas Totales</div><div class="card-value" id="dash-total-ventas">0</div></div>
