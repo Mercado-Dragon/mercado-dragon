@@ -860,28 +860,22 @@ function sheetGet(action, callback) {
 }
 
 function sheetSave(action, obj) {
-  // Clonar objeto y eliminar imagen base64 (demasiado grande para URL)
-  // Solo se guarda la URL si es http, nunca base64
-  const objLimpio = Object.assign({}, obj);
-  if(objLimpio.imagen && objLimpio.imagen.startsWith('data:')) {
+  // Clonar y eliminar imagen base64 — solo guardar URLs http
+  var objLimpio = {};
+  for(var k in obj) { objLimpio[k] = obj[k]; }
+  if(objLimpio.imagen && String(objLimpio.imagen).startsWith('data:')) {
     objLimpio.imagen = '';
   }
-  const dataStr = JSON.stringify(objLimpio);
-  // Usar fetch POST para evitar límite de caracteres en URL
-  fetch(SHEETS_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ action: action, data: dataStr })
-  }).catch(function() {
-    // Fallback a GET si fetch falla
-    const script = document.createElement('script');
-    const cbName = '_cbsave_' + Date.now() + '_' + Math.floor(Math.random()*9999);
-    window[cbName] = function() { delete window[cbName]; if(document.head.contains(script)) document.head.removeChild(script); };
-    script.onerror = function() { delete window[cbName]; };
-    script.src = SHEETS_URL + '?action=' + action + '&data=' + encodeURIComponent(dataStr) + '&callback=' + cbName;
-    document.head.appendChild(script);
-  });
+  var script = document.createElement('script');
+  var cbName = '_cbsave_' + Date.now() + '_' + Math.floor(Math.random()*9999);
+  window[cbName] = function(res) {
+    delete window[cbName];
+    if(document.head.contains(script)) document.head.removeChild(script);
+  };
+  script.onerror = function() { delete window[cbName]; };
+  var dataStr = encodeURIComponent(JSON.stringify(objLimpio));
+  script.src = SHEETS_URL + '?action=' + action + '&data=' + dataStr + '&callback=' + cbName;
+  document.head.appendChild(script);
 }
 
 function sheetDelete(action, id) {
