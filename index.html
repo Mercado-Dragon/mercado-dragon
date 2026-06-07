@@ -908,14 +908,13 @@ function cargarDesdeSheets() {
       return;
     }
     const d = res.data;
-    if(d.productos && d.productos.length) {
-      // Convertir tipos
-      d.productos.forEach(function(p) {
+    if(d.productos) {
+      data.productos = d.productos.filter(function(p){ return p.nombre && String(p.nombre).trim() !== ""; }).map(function(p) {
         p.id = Number(p.id)||p.id; p.stock=Number(p.stock)||0;
         p.costo=Number(p.costo)||0; p.precio=Number(p.precio)||0;
-        p.imagen = p.imagen || '';
+        p.imagen = p.imagen || "";
+        return p;
       });
-      data.productos = d.productos;
     }
     if(d.ventas && d.ventas.length) {
       d.ventas.forEach(function(v) {
@@ -1176,7 +1175,7 @@ function buscarDuplicado(val) {
   const v = val.toLowerCase();
   // Solo mostrar sugerencias, nunca bloquear el flujo
   const matches = data.productos.filter(function(p) {
-    return p.nombre.toLowerCase().includes(v);
+    return p.nombre && String(p.nombre).toLowerCase().includes(v);
   });
   if(!matches.length) { lista.style.display='none'; return; }
   lista.innerHTML = matches.map(function(p) {
@@ -1251,7 +1250,7 @@ function agregarProducto() {
 
   // Verificar duplicado EXACTO — si es similar pero no exacto, NO bloquear
   const dupExacto = data.productos.find(function(p) {
-    return p.nombre.trim().toLowerCase() === nombre.toLowerCase();
+    return p.nombre && String(p.nombre).trim().toLowerCase() === nombre.toLowerCase();
   });
   if(dupExacto) {
     mostrarOpcionesDuplicado(dupExacto.id);
@@ -1330,7 +1329,7 @@ function buscarProductoVenta(val) {
   if(!val||val.length<1) { lista.style.display='none'; return; }
   const matches = data.productos.filter(p=>
     p.estado==='stock'&&p.stock>0&&
-    (p.nombre.toLowerCase().includes(val.toLowerCase())||(p.codigo||'').toLowerCase().includes(val.toLowerCase()))
+    (p.nombre && String(p.nombre).toLowerCase().includes(val.toLowerCase())||(p.codigo||'').toLowerCase().includes(val.toLowerCase()))
   );
   if(!matches.length) { lista.style.display='none'; return; }
   lista.innerHTML = matches.map(p=>`<div onclick="seleccionarProductoVenta(${p.id})">
@@ -1513,7 +1512,7 @@ function renderTransito() {
 function recibirMercaderia(id) {
   const t = data.transito.find(x=>x.id===id);
   if(!t) return;
-  const existente = data.productos.find(p=>p.nombre.toLowerCase()===t.desc.toLowerCase());
+  const existente = data.productos.find(p=>p.nombre && String(p.nombre).toLowerCase()===String(t.desc).toLowerCase());
   const modal = document.getElementById('modal-overlay');
   if(existente) {
     document.getElementById('modal-title').textContent='✓ Sumar al Stock Existente';
@@ -1543,7 +1542,7 @@ function confirmarRecibir(id, esExistente) {
   if(!t) return;
   const costoPU = t.unidades > 0 ? (t.costo / t.unidades) : t.costo;
   if(esExistente) {
-    const ex = data.productos.find(p=>p.nombre.toLowerCase()===t.desc.toLowerCase());
+    const ex = data.productos.find(p=>p.nombre && String(p.nombre).toLowerCase()===String(t.desc).toLowerCase());
     ex.stock += t.unidades;
     if(ex.estado==='agotado'||ex.estado==='transito') ex.estado='stock';
     registrarEntrada(ex, 'Desde tránsito', t.unidades, costoPU, t.origen||'');
