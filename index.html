@@ -2313,6 +2313,10 @@ document.getElementById('c-fecha').value=hoy();
 actualizarCampoCodigoMD();
 // Cargar datos desde Google Sheets al iniciar
 setTimeout(cargarDesdeSheets, 800);
+// Auto-sincronizar cada 30 segundos para ver cambios de otros usuarios
+setInterval(function() {
+  cargarDesdeSheets();
+}, 30000);
 </script>
 </body>
 </html>
