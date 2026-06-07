@@ -842,7 +842,7 @@ function save() {
 }
 
 // ===== GOOGLE SHEETS SYNC =====
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycby6L7maM80TvMPs8eVBaVyOCUqd6xyxI0uRjyjGDcTGY_tCjFNuk4wYw2aWrIZEW2wX/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxdXW8xbiVdnXxtJaxEhTOSXkBcSOyFLoQj_7ouD_78gGhCoUcMjjsNw1kZ_Fcggc6c/exec';
 let _syncPendiente = false;
 let _syncTimer = null;
 
@@ -860,16 +860,28 @@ function sheetGet(action, callback) {
 }
 
 function sheetSave(action, obj) {
-  const script = document.createElement('script');
-  const cbName = '_cbsave_' + Date.now() + '_' + Math.floor(Math.random()*9999);
-  window[cbName] = function(res) {
-    delete window[cbName];
-    if(document.head.contains(script)) document.head.removeChild(script);
-  };
-  script.onerror = function() { delete window[cbName]; };
-  const dataStr = encodeURIComponent(JSON.stringify(obj));
-  script.src = SHEETS_URL + '?action=' + action + '&data=' + dataStr + '&callback=' + cbName;
-  document.head.appendChild(script);
+  // Clonar objeto y eliminar imagen base64 (demasiado grande para URL)
+  // Solo se guarda la URL si es http, nunca base64
+  const objLimpio = Object.assign({}, obj);
+  if(objLimpio.imagen && objLimpio.imagen.startsWith('data:')) {
+    objLimpio.imagen = '';
+  }
+  const dataStr = JSON.stringify(objLimpio);
+  // Usar fetch POST para evitar límite de caracteres en URL
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: action, data: dataStr })
+  }).catch(function() {
+    // Fallback a GET si fetch falla
+    const script = document.createElement('script');
+    const cbName = '_cbsave_' + Date.now() + '_' + Math.floor(Math.random()*9999);
+    window[cbName] = function() { delete window[cbName]; if(document.head.contains(script)) document.head.removeChild(script); };
+    script.onerror = function() { delete window[cbName]; };
+    script.src = SHEETS_URL + '?action=' + action + '&data=' + encodeURIComponent(dataStr) + '&callback=' + cbName;
+    document.head.appendChild(script);
+  });
 }
 
 function sheetDelete(action, id) {
