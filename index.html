@@ -1167,14 +1167,19 @@ function actualizarCampoCodigoMD() {
 function buscarDuplicado(val) {
   const lista = document.getElementById('inv-autocomplete');
   if(!val || val.length < 2) { lista.style.display='none'; return; }
-  const matches = data.productos.filter(p => p.nombre.toLowerCase().includes(val.toLowerCase()));
+  const v = val.toLowerCase();
+  // Solo mostrar sugerencias, nunca bloquear el flujo
+  const matches = data.productos.filter(function(p) {
+    return p.nombre.toLowerCase().includes(v);
+  });
   if(!matches.length) { lista.style.display='none'; return; }
-  lista.innerHTML = matches.map(p =>
-    '<div onclick="mostrarOpcionesDuplicado(' + p.id + ')">' +
-    '<strong>' + p.nombre + '</strong>' +
-    '<div class="ac-code">📦 ' + (p.codigo||'Sin código') + ' · Stock: ' + p.stock + ' · ' + bs(p.precio) + '</div>' +
-    '<div class="ac-code" style="color:var(--accent)">👆 Sumar stock o crear nuevo</div></div>'
-  ).join('');
+  lista.innerHTML = matches.map(function(p) {
+    return '<div onclick="mostrarOpcionesDuplicado(' + p.id + ')">' +
+      '<strong>' + p.nombre + '</strong>' +
+      '<div class="ac-code">📦 ' + (p.codigo||'Sin código') + ' · Stock: ' + p.stock + ' · ' + bs(p.precio) + '</div>' +
+      '<div class="ac-code" style="color:var(--accent)">👆 Sumar stock a este producto</div>' +
+      '</div>';
+  }).join('');
   lista.style.display = 'block';
 }
 function mostrarOpcionesDuplicado(id) {
@@ -1227,31 +1232,60 @@ document.addEventListener('click', function(e) {
 
 // ===== INVENTARIO =====
 function agregarProducto() {
+  // Cerrar cualquier autocomplete o modal abierto
+  const ac = document.getElementById('inv-autocomplete');
+  if(ac) ac.style.display = 'none';
+
   const nombre = document.getElementById('inv-nombre').value.trim();
   if(!nombre) { alert('Ingresa el nombre del producto'); return; }
-  const dup = data.productos.find(p=>p.nombre.toLowerCase()===nombre.toLowerCase());
-  if(dup) { mostrarOpcionesDuplicado(dup.id); return; }
+
+  const stockInit = parseInt(document.getElementById('inv-stock').value) || 0;
+  const costoInit = parseFloat(document.getElementById('inv-costo').value) || 0;
+  const precioInit = parseFloat(document.getElementById('inv-precio').value) || 0;
+
+  // Verificar duplicado EXACTO — si es similar pero no exacto, NO bloquear
+  const dupExacto = data.productos.find(function(p) {
+    return p.nombre.trim().toLowerCase() === nombre.toLowerCase();
+  });
+  if(dupExacto) {
+    mostrarOpcionesDuplicado(dupExacto.id);
+    return;
+  }
+
+  // Crear producto nuevo sin importar si hay nombres similares
   const codigoEl = document.getElementById('inv-codigo');
   const codigo = (codigoEl && codigoEl.value.trim()) ? codigoEl.value.trim() : generarCodigoMD();
   const imgURL = document.getElementById('inv-img-url').value.trim();
   const imagen = imgDataMap.inv || imgURL || '';
-  const stockInit = parseInt(document.getElementById('inv-stock').value)||0;
-  const costoInit = parseFloat(document.getElementById('inv-costo').value)||0;
+
   const nuevoProd = {
-    id:Date.now(), codigo, nombre,
+    id: Date.now(),
+    codigo: codigo,
+    nombre: nombre,
     categoria: document.getElementById('inv-categoria').value.trim(),
-    stock: stockInit, costo: costoInit,
-    precio: parseFloat(document.getElementById('inv-precio').value)||0,
-    estado: document.getElementById('inv-estado').value, imagen
+    stock: stockInit,
+    costo: costoInit,
+    precio: precioInit,
+    estado: document.getElementById('inv-estado').value,
+    imagen: imagen
   };
+
   data.productos.push(nuevoProd);
   if(stockInit > 0) registrarEntrada(nuevoProd, 'Producto nuevo', stockInit, costoInit, 'Ingreso inicial');
   save();
   sheetSave('saveProducto', nuevoProd);
-  ['inv-nombre','inv-categoria','inv-stock','inv-costo','inv-precio','inv-img-url'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('inv-img-file').value='';
-  resetPreview('inv-img-preview','inv');
-  renderInventario(); actualizarCampoCodigoMD();
+
+  // Limpiar formulario
+  ['inv-nombre','inv-categoria','inv-stock','inv-costo','inv-precio','inv-img-url'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  document.getElementById('inv-img-file').value = '';
+  resetPreview('inv-img-preview', 'inv');
+  imgDataMap.inv = '';
+
+  renderInventario();
+  actualizarCampoCodigoMD();
 }
 function eliminarProducto(id) {
   if(!confirm('¿Eliminar producto?')) return;
