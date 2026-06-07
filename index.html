@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mercado Dragón — Sistema de Gestión</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://googleapis.com" rel="stylesheet">
+<script src="https://cloudflare.com"></script>
 <style>
 :root {
   --bg: #0d0f14; --surface: #161a23; --surface2: #1e2330; --border: #2a3045;
@@ -128,7 +128,6 @@ select option { background:var(--surface2); }
 .section-title span { color:var(--accent); }
 .divider { height:1px; background:var(--border); margin:20px 0; }
 
-/* AUTOCOMPLETADO FLOTANTE */
 .suggestions-box {
   position: absolute; top: calc(100% + 4px); left: 0; right: 0;
   background: var(--surface2); border: 1px solid var(--border);
@@ -161,9 +160,10 @@ select option { background:var(--surface2); }
 </header>
 
 <nav>
-  <button class="tab-btn active" onclick="switchTab('dashboard')">📊 DASHBOARD</button>
-  <button class="tab-btn" onclick="switchTab('socios')">👥 SOCIOS</button>
-  <button class="tab-btn" onclick="switchTab('inventario')">📦 INVENTARIO</button>
-  <button class="tab-btn" onclick="switchTab('ventas')">💰 VENTAS</button>
-  <button class="tab-btn" onclick="switchTab('transito')">✈️ TRÁNSITO</button>
-  <button class="tab-btn" onclick="switchTab('balance')">⚖️ BALANCE</button>
+  <button class="tab-btn active" onclick="switchTab('dashboard')">DASHBOARD</button>
+  <button class="tab-btn" onclick="switchTab('socios')">SOCIOS</button>
+  <button class="tab-btn" onclick="switchTab('inventario')">INVENTARIO</button>
+  <button class="tab-btn" onclick="switchTab('ventas')">VENTAS</button>
+  <button class="tab-btn" onclick="switchTab('transito')">TRÁNSITO</button>
+  <button class="tab-btn" onclick="switchTab('balance')">BALANCE</button>
+  <div class="export-dropdown">
