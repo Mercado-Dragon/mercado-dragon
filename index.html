@@ -319,6 +319,8 @@ select option { background:var(--surface2); }
     <div class="card red"><div class="card-label">En Tránsito</div><div class="card-value" id="d-transito">0</div><div class="card-sub">cargas pendientes</div></div>
     <div class="card blue"><div class="card-label">Total Pagado</div><div class="card-value" id="d-pagado">Bs. 0</div><div class="card-sub">a socios</div></div>
     <div class="card gold"><div class="card-label">Pendiente Pago</div><div class="card-value" id="d-pendiente">Bs. 0</div><div class="card-sub">por distribuir</div></div>
+    <div class="card green"><div class="card-label">Valor Comercial</div><div class="card-value" id="d-valor-venta">Bs. 0</div><div class="card-sub">precio venta × stock disponible</div></div>
+    <div class="card blue"><div class="card-label">Inversión en Stock</div><div class="card-value" id="d-capital">Bs. 0</div><div class="card-sub">costo unitario × stock disponible</div></div>
   </div>
   <div class="section-title" style="font-size:1rem;margin-bottom:14px;">Distribución de <span>Utilidades</span></div>
   <div class="socios-grid" id="dash-socios"></div>
@@ -1699,6 +1701,10 @@ function renderDashboard() {
   document.getElementById('d-transito').textContent=data.transito.length;
   document.getElementById('d-pagado').textContent=bs(tp);
   document.getElementById('d-pendiente').textContent=bs(tu-tp);
+  const valorVenta = data.productos.reduce(function(s,p){return s+(p.precio*p.stock);},0);
+  const capitalInvertido = data.productos.reduce(function(s,p){return s+(p.costo*p.stock);},0);
+  document.getElementById('d-valor-venta').textContent=bs(valorVenta);
+  document.getElementById('d-capital').textContent=bs(capitalInvertido);
   document.getElementById('dash-socios').innerHTML=data.socios.map(s=>{
     const pend=pendienteSocio(s.id);
     return `<div class="socio-card" style="border-left-color:${s.color}">
