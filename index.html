@@ -3,9 +3,6 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mercado Dragón — Sistema de Gestión v7</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -1882,9 +1879,6 @@ function imprimirReporte() {
     ${data.socios.map(s=>`<td style="text-align:right">Bs. ${(v.utilidad*(s.pct/100)).toFixed(2)}</td>`).join('')}
   </tr>`).join(''):'<tr><td colspan="20" style="text-align:center;color:#999">Sin ventas</td></tr>';
   const html=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0"><title>Reporte MERCADO DRAGÓN</title>
   <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:10px;color:#111;padding:18px}
   h1{font-size:18px;color:#1a1a2e;border-bottom:3px solid #f0b429;padding-bottom:7px;margin-bottom:4px}
   .sub{color:#666;font-size:10px;margin-bottom:18px}h2{font-size:12px;color:#1a1a2e;background:#f5f5f0;padding:5px 9px;margin:18px 0 7px;border-left:4px solid #f0b429}
@@ -1923,9 +1917,6 @@ function imprimirBalance() {
   const socioCols=data.socios.map(s=>`<th>${s.nombre.split(' ')[0]} ${s.pct}%</th>`).join('');
   const rows=[...vp].reverse().map(v=>`<tr><td>${v.fecha}</td><td>${v.productoNombre}</td><td>${v.cantidad}</td><td>Bs. ${v.precioUnit.toFixed(2)}</td><td>Bs. ${v.total.toFixed(2)}</td><td>Bs. ${v.utilidad.toFixed(2)}</td>${data.socios.map(s=>`<td>Bs. ${(v.utilidad*(s.pct/100)).toFixed(2)}</td>`).join('')}</tr>`).join('');
   const html=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0"><title>Balance MERCADO DRAGÓN</title>
   <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:10px;color:#111;padding:20px}
   h1{font-size:17px;color:#1a1a2e;border-bottom:3px solid #f0b429;padding-bottom:7px;margin-bottom:4px}.sub{color:#666;font-size:10px;margin-bottom:18px}
   h2{font-size:11px;background:#f5f5f0;padding:5px 9px;margin:16px 0 7px;border-left:4px solid #f0b429;color:#1a1a2e}
@@ -1964,9 +1955,6 @@ function imprimirCierres() {
     return `<tr><td>${s.nombre}</td><td style="text-align:center">${s.pct}%</td><td style="text-align:right">Bs. ${gan.toFixed(2)}</td><td style="text-align:right">Bs. ${pag.toFixed(2)}</td><td style="text-align:right;font-weight:bold;color:${pend>0?'#e05c5c':'#3ecf8e'}">Bs. ${pend.toFixed(2)}</td></tr>`;
   }).join('');
   const html=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0"><title>Cierres — MERCADO DRAGÓN</title>
   <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:10px;color:#111;padding:20px}
   h1{font-size:17px;color:#1a1a2e;border-bottom:3px solid #f0b429;padding-bottom:7px;margin-bottom:4px}.sub{color:#666;font-size:10px;margin-bottom:18px}
   h2{font-size:11px;background:#f5f5f0;padding:5px 9px;margin:16px 0 7px;border-left:4px solid #f0b429;color:#1a1a2e}
@@ -2025,9 +2013,6 @@ function exportarExcel() {
     return `<tr><td style="text-align:center;background:#f2f2f2;font-weight:bold">${i+1}</td><td style="font-weight:bold">${p.nombre}</td><td>${p.categoria||'—'}</td><td style="text-align:center;font-weight:bold">${p.stock}</td><td style="text-align:right">Bs. ${p.costo.toFixed(2)}</td><td style="text-align:right;font-weight:bold">Bs. ${p.precio.toFixed(2)}</td><td style="text-align:center;background:${cM}">${margen}%</td><td style="text-align:right">Bs. ${(p.costo*p.stock).toFixed(2)}</td><td style="text-align:right;font-weight:bold">Bs. ${(p.precio*p.stock).toFixed(2)}</td><td style="text-align:center;background:${cE}">${estado}</td></tr>`;
   }).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Inventario</x:Name></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--><style>body{font-family:Arial;font-size:11pt}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px 10px}.encabezado th{background:#1a1a2e;color:#fff;font-weight:bold;text-align:center}.totales td{background:#f0b429;font-weight:bold}</style></head><body>
   <table><tr><td colspan="10" style="font-size:16pt;font-weight:bold;border:none">Inventario — Mercado Dragón</td></tr><tr><td colspan="10" style="font-size:10pt;color:#666;border:none">${now.toLocaleDateString('es-BO')} | ${data.productos.length} productos</td></tr><tr><td colspan="10" style="border:none"></td></tr>
   <tr class="encabezado"><th>#</th><th>Producto</th><th>Categoría</th><th>Stock</th><th>Costo</th><th>Precio Venta</th><th>Margen %</th><th>Val. Costo</th><th>Val. Venta</th><th>Estado</th></tr>
   ${filas||'<tr><td colspan="10" style="text-align:center;color:#999">Sin productos</td></tr>'}
@@ -2134,9 +2119,6 @@ function imprimirTicketsPeriodo() {
       '</div>';
   }).join('');
   const html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0"><title>Tickets</title>' +
     '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:11px;color:#111;padding:20px}' +
     'h2{font-size:13px;color:#1a1a2e;margin-bottom:14px;}' +
     '@media print{body{padding:10px}}</style></head><body>' +
@@ -2305,9 +2287,6 @@ function imprimirInventario() {
   const totalStock = data.productos.reduce(function(s,p){return s+p.stock;},0);
   const totalCosto = data.productos.reduce(function(s,p){return s+(p.costo*p.stock);},0);
   const html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0"><title>Inventario</title>' +
     '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:10px;color:#111;padding:20px}' +
     'h1{font-size:17px;color:#1a1a2e;border-bottom:3px solid #f0b429;padding-bottom:7px;margin-bottom:4px}' +
     '.sub{color:#666;font-size:10px;margin-bottom:16px}' +
@@ -2343,9 +2322,6 @@ function imprimirEntradas() {
       '<td>' + (e.nota||'—') + '</td></tr>';
   }).join('');
   const html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0"><title>Entradas</title>' +
     '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:10px;color:#111;padding:20px}' +
     'h1{font-size:17px;color:#1a1a2e;border-bottom:3px solid #f0b429;padding-bottom:7px;margin-bottom:4px}' +
     '.sub{color:#666;font-size:10px;margin-bottom:16px}' +
