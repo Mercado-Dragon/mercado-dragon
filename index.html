@@ -393,7 +393,10 @@ select option { background:var(--surface2); }
   <div class="table-container">
     <div class="table-header">
       <span class="table-title">Productos Registrados</span>
-      <span id="inv-count" style="font-size:0.73rem;color:var(--muted)">0 productos</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="inv-buscar" placeholder="🔍 Buscar producto..." oninput="filtrarInventario()" style="padding:5px 10px;font-size:0.75rem;width:200px;border-radius:6px;">
+        <span id="inv-count" style="font-size:0.73rem;color:var(--muted)">0 productos</span>
+      </div>
     </div>
     <div style="overflow-x:auto;">
     <table>
@@ -843,7 +846,7 @@ function save() {
 }
 
 // ===== GOOGLE SHEETS SYNC =====
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxdXW8xbiVdnXxtJaxEhTOSXkBcSOyFLoQj_7ouD_78gGhCoUcMjjsNw1kZ_Fcggc6c/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycby6L7maM80TvMPs8eVBaVyOCUqd6xyxI0uRjyjGDcTGY_tCjFNuk4wYw2aWrIZEW2wX/exec';
 let _syncPendiente = false;
 let _syncTimer = null;
 
@@ -1329,7 +1332,7 @@ function renderInventario() {
     const bText  = p.estado==='stock'?'En Stock':p.estado==='transito'?'Tránsito':'Agotado';
     const imgHtml = p.imagen
       ? `<img src="${p.imagen}" class="img-thumb" onerror="this.outerHTML='<div class=\\'img-placeholder\\'>📦</div>'">`
-      : `<div class="img-placeholder" style="cursor:pointer" onclick="editarImagen(${p.id})" title="Agregar imagen">➕</div>`;
+      : `<div class="img-placeholder">📦</div>`;
     return `<tr>
       <td>${i+1}</td><td>${imgHtml}</td>
       <td style="color:var(--accent);font-weight:600;font-size:0.73rem">${p.codigo||'—'}</td>
@@ -1515,7 +1518,7 @@ function renderTransito() {
   tbody.innerHTML = data.transito.map(t=>{
     const imgHtml = t.imagen
       ? `<img src="${t.imagen}" class="img-thumb" onerror="this.outerHTML='<div class=\\'img-placeholder\\'>📦</div>'">`
-      : `<div class="img-placeholder" style="cursor:pointer" onclick="editarImagen(${p.id})" title="Agregar imagen">➕</div>`;
+      : `<div class="img-placeholder">📦</div>`;
     return `<tr>
       <td>${imgHtml}</td>
       <td><strong>${t.desc}</strong></td><td>${t.origen||'—'}</td><td>${t.unidades}</td>
@@ -1532,60 +1535,126 @@ function renderTransito() {
 function recibirMercaderia(id) {
   const t = data.transito.find(x=>x.id===id);
   if(!t) return;
-  const existente = data.productos.find(p=>p.nombre && String(p.nombre).toLowerCase()===String(t.desc).toLowerCase());
-  const modal = document.getElementById('modal-overlay');
-  if(existente) {
-    document.getElementById('modal-title').textContent='✓ Sumar al Stock Existente';
-    document.getElementById('modal-body').innerHTML=`<p style="font-size:0.83rem;color:var(--muted);margin-bottom:12px">Producto "<strong style="color:var(--text)">${existente.nombre}</strong>" encontrado.</p>
-      <div class="cierre-detalle">
-        <div class="cierre-det-item"><div class="cierre-det-label">Stock actual</div><div class="cierre-det-val">${existente.stock} uds</div></div>
-        <div class="cierre-det-item"><div class="cierre-det-label">Se agregan</div><div class="cierre-det-val" style="color:var(--accent2)">+${t.unidades} uds</div></div>
-        <div class="cierre-det-item"><div class="cierre-det-label">Nuevo stock</div><div class="cierre-det-val" style="color:var(--accent)">${existente.stock+t.unidades} uds</div></div>
-      </div>`;
-    document.getElementById('modal-actions').innerHTML=`<button class="btn btn-green" onclick="confirmarRecibir(${id},true)">✓ Confirmar</button><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>`;
-  } else {
-    const costoPU = t.unidades>0?(t.costo/t.unidades).toFixed(2):t.costo.toFixed(2);
-    document.getElementById('modal-title').textContent='📦 Crear Nuevo Producto';
-    document.getElementById('modal-body').innerHTML=`<p style="font-size:0.83rem;color:var(--muted);margin-bottom:12px">Completa el precio de venta.</p>
-      <div class="form-grid">
-        <div class="form-group"><label>Nombre</label><input type="text" value="${t.desc}" id="m-nombre" readonly style="opacity:0.6"></div>
-        <div class="form-group"><label>Unidades</label><input type="number" value="${t.unidades}" id="m-unidades" readonly style="opacity:0.6"></div>
-        <div class="form-group"><label>Costo unitario (Bs.)</label><input type="number" value="${costoPU}" id="m-costo" step="0.01"></div>
-        <div class="form-group"><label>Precio Venta (Bs.)</label><input type="number" id="m-precio" placeholder="0.00" step="0.01"></div>
-      </div>`;
-    document.getElementById('modal-actions').innerHTML=`<button class="btn btn-green" onclick="confirmarRecibir(${id},false)">✓ Crear y Recibir</button><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>`;
-  }
-  modal.classList.add('open');
+  window._recibirId = id;
+
+  // t.costo es el costo UNITARIO ingresado en tránsito
+  // El total = costo unitario x unidades
+  const costoPU = parseFloat(t.costo).toFixed(2);
+  const costoTotal = (parseFloat(t.costo) * t.unidades).toFixed(2);
+  // Buscar si ya existe el producto por nombre
+  const existente = data.productos.find(p => p.nombre && String(p.nombre).toLowerCase() === String(t.desc).toLowerCase());
+
+  document.getElementById('modal-title').textContent = '📦 Recibir Mercadería';
+  document.getElementById('modal-body').innerHTML = [
+    '<div class="cierre-detalle" style="margin-bottom:14px;">',
+    '<div class="cierre-det-item"><div class="cierre-det-label">Descripción</div><div class="cierre-det-val">' + t.desc + '</div></div>',
+    '<div class="cierre-det-item"><div class="cierre-det-label">Unidades</div><div class="cierre-det-val" style="color:var(--accent2)">' + t.unidades + ' uds</div></div>',
+    '<div class="cierre-det-item"><div class="cierre-det-label">Costo Unit.</div><div class="cierre-det-val">' + bs(t.costo) + '</div></div>',
+    '<div class="cierre-det-item"><div class="cierre-det-label">Costo Total</div><div class="cierre-det-val" style="color:var(--accent)">' + bs(parseFloat(t.costo) * t.unidades) + '</div></div>',
+    '</div>',
+    existente
+      ? '<div class="alert alert-green" style="margin-bottom:12px;">✅ Producto ya registrado — se sumará stock al existente</div>'
+      : '<div class="alert alert-info" style="margin-bottom:12px;">🆕 Producto nuevo — se creará en inventario</div>',
+    '<div class="form-grid">',
+    // Código MD — si existe mostrar el actual (readonly), si es nuevo sugerir el siguiente
+    '<div class="form-group"><label>Código MD</label>',
+    existente
+      ? '<input type="text" id="m-codigo" value="' + (existente.codigo||generarCodigoMD()) + '" style="color:var(--accent);font-weight:600;" title="Puedes modificar el código">'
+      : '<input type="text" id="m-codigo" value="' + generarCodigoMD() + '" style="color:var(--accent);font-weight:600;" title="Siguiente código disponible — puedes cambiarlo">',
+    '</div>',
+    // Nombre
+    '<div class="form-group"><label>Nombre</label>',
+    '<input type="text" id="m-nombre" value="' + (existente ? existente.nombre : t.desc) + '"' + (existente ? ' readonly style="opacity:0.7;"' : '') + '>',
+    '</div>',
+    // Categoría
+    '<div class="form-group"><label>Categoría</label>',
+    '<input type="text" id="m-categoria" value="' + (existente ? existente.categoria : (t.origen||'')) + '" placeholder="Electrónica, Ropa...">',
+    '</div>',
+    // Costo unitario
+    '<div class="form-group"><label>Costo Unitario (Bs.)</label>',
+    '<input type="number" id="m-costo" value="' + costoPU + '" step="0.01">',
+    '</div>',
+    // Precio venta
+    '<div class="form-group"><label>Precio Venta (Bs.)</label>',
+    '<input type="number" id="m-precio" value="' + (existente ? existente.precio.toFixed(2) : '0.00') + '" step="0.01" placeholder="0.00">',
+    '</div>',
+    // Stock actual si existe
+    existente
+      ? '<div class="form-group"><label>Stock actual</label><input type="text" value="' + existente.stock + ' uds → ' + (existente.stock + t.unidades) + ' uds" readonly style="color:var(--accent2);opacity:0.8;"></div>'
+      : '',
+    '</div>'
+  ].join('');
+
+  document.getElementById('modal-actions').innerHTML =
+    '<button class="btn btn-green" onclick="confirmarRecibir()">✓ ' + (existente ? 'Sumar Stock' : 'Crear y Recibir') + '</button>' +
+    '<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>';
+
+  document.getElementById('modal-overlay').classList.add('open');
 }
-function confirmarRecibir(id, esExistente) {
+
+function confirmarRecibir() {
+  const id = window._recibirId;
   const t = data.transito.find(x=>x.id===id);
   if(!t) return;
-  const costoPU = t.unidades > 0 ? (t.costo / t.unidades) : t.costo;
-  if(esExistente) {
-    const ex = data.productos.find(p=>p.nombre && String(p.nombre).toLowerCase()===String(t.desc).toLowerCase());
-    // COSTO PROMEDIO PONDERADO al recibir desde tránsito
-    const costoAnterior = ex.costo;
-    const stockAnterior = ex.stock;
-    ex.stock += t.unidades;
-    if(stockAnterior > 0) {
-      ex.costo = Math.round(((stockAnterior * costoAnterior) + (t.unidades * costoPU)) / ex.stock * 100) / 100;
-    } else {
-      ex.costo = Math.round(costoPU * 100) / 100;
-    }
-    if(ex.estado==='agotado'||ex.estado==='transito') ex.estado='stock';
-    registrarEntrada(ex, 'Desde tránsito', t.unidades, costoPU, t.origen||'');
+
+  const codigo = (document.getElementById('m-codigo')?.value || '').trim();
+  const nombre = (document.getElementById('m-nombre')?.value || t.desc).trim();
+  const categoria = (document.getElementById('m-categoria')?.value || '').trim();
+  // m-costo contiene el costo UNITARIO
+  const costo = parseFloat(document.getElementById('m-costo')?.value) || parseFloat(t.costo);
+  const precio = parseFloat(document.getElementById('m-precio')?.value) || 0;
+
+  if(precio <= 0) { alert('Ingresa el precio de venta'); return; }
+
+  // Buscar si ya existe por nombre
+  const existente = data.productos.find(p => p.nombre && String(p.nombre).toLowerCase() === nombre.toLowerCase());
+
+  if(existente) {
+    // Sumar stock con costo promedio ponderado
+    const stockAnt = existente.stock;
+    const costoAnt = existente.costo;
+    existente.stock += t.unidades;
+    existente.costo = stockAnt > 0
+      ? Math.round(((stockAnt * costoAnt) + (t.unidades * costo)) / existente.stock * 100) / 100
+      : Math.round(costo * 100) / 100;
+    existente.precio = precio;
+    if(categoria) existente.categoria = categoria;
+    // Actualizar código si fue modificado
+    if(codigo && codigo !== existente.codigo) existente.codigo = codigo;
+    if(existente.estado === 'agotado' || existente.estado === 'transito') existente.estado = 'stock';
+    registrarEntrada(existente, 'Desde tránsito', t.unidades, costo, t.origen||'');
+    save();
+    sheetSave('updateProducto', existente);
   } else {
-    const precio = parseFloat(document.getElementById('m-precio').value)||0;
-    const costo = parseFloat(document.getElementById('m-costo').value)||costoPU;
-    if(precio<=0) { alert('Ingresa el precio de venta'); return; }
-    const newP = { id:Date.now(), nombre:t.desc, categoria:t.origen||'', stock:t.unidades, costo, precio, estado:'stock', imagen:t.imagen||'' };
+    // Crear producto nuevo
+    const codigoFinal = codigo || generarCodigoMD();
+    const newP = {
+      id: Date.now(),
+      codigo: codigoFinal,
+      nombre: nombre,
+      categoria: categoria,
+      stock: t.unidades,
+      costo: costo,
+      precio: precio,
+      estado: 'stock',
+      imagen: t.imagen || ''
+    };
     data.productos.push(newP);
     registrarEntrada(newP, 'Desde tránsito', t.unidades, costo, t.origen||'');
+    save();
+    sheetSave('saveProducto', newP);
   }
+
+  // Eliminar de tránsito
   data.transito = data.transito.filter(x=>x.id!==id);
   save();
   sheetDelete('deleteTransito', id);
-  closeModal(); renderTransito(); renderInventario(); renderDashboard();
+  closeModal();
+  renderTransito();
+  renderInventario();
+  renderDashboard();
+  actualizarCampoCodigoMD();
+  alert('✅ Mercadería recibida y guardada en inventario correctamente.');
 }
 function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
 
@@ -2155,6 +2224,21 @@ function imprimirTicketsPeriodo() {
     '<script>window.onload=function(){window.print()}<\/script></body></html>';
   const w = window.open('','_blank','width=600,height=700');
   w.document.write(html); w.document.close();
+}
+
+
+// ===== FILTRAR INVENTARIO =====
+function filtrarInventario() {
+  const q = (document.getElementById('inv-buscar')?.value || '').toLowerCase();
+  const tbody = document.getElementById('inv-table');
+  const rows = tbody.querySelectorAll('tr');
+  let visible = 0;
+  rows.forEach(function(row) {
+    const txt = row.textContent.toLowerCase();
+    const show = !q || txt.includes(q);
+    row.style.display = show ? '' : 'none';
+    if(show && !row.classList.contains('empty-row')) visible++;
+  });
 }
 
 // ===== ENTRADAS =====
